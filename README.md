@@ -210,8 +210,8 @@ AI-Finance-Assistant/
 ├── generate_dataset.py         # Generates synthetic finance dataset
 ├── train_ml_model.py           # Trains ML models for scoring/classification/budgeting
 ├── train_dl_model.py           # Trains forecasting / deep learning model
-├── requirements.txt           # Project dependencies
-├── README.md                  # Project documentation
+├── requirements.txt            # Project dependencies
+├── README.md                   # Project documentation
 │
 ├── dataset/
 │   └── finance_assistant_dataset.csv   # Generated dataset used for training
@@ -243,3 +243,193 @@ AI-Finance-Assistant/
     ├── investment_engine.py    # Investment recommendation logic
     ├── history_manager.py      # SQLite history handling
     └── pdf_report.py           # PDF report generation
+```
+
+---
+
+# Model Pipeline
+
+The project uses a multi-stage model pipeline.
+
+## 1) Dataset Generation
+
+`generate_dataset.py` creates a synthetic household finance dataset containing realistic financial profiles and engineered finance features.
+
+The dataset includes:
+
+- income and expense details
+- EMI / debt burden
+- savings goal and current savings
+- demographic and lifestyle factors
+- engineered ratios and financial indicators
+- target labels for score, class, and forecast
+
+---
+
+## 2) ML Training
+
+`train_ml_model.py` trains models for:
+
+### Spender Classification
+Predicts whether the user is:
+- `Safe`
+- `Moderate`
+- `Risky`
+
+### Financial Health Score Regression
+Predicts a numerical financial health score out of 100.
+
+### Budget Recommendation Support
+Helps guide category-wise monthly allocation suggestions.
+
+Saved outputs:
+- `models/budget_recommender.joblib`
+- `models/health_score_model.joblib`
+- `models/spender_classifier.joblib`
+- `models/ml_metrics.csv`
+
+---
+
+## 3) Forecast Model Training
+
+`train_dl_model.py` trains the savings forecasting model.
+
+Primary objective:
+- forecast future savings / financial trend behavior
+
+Implementation note:
+- Uses **TensorFlow / Keras** when available
+- Falls back to a neural / MLP-based model if TensorFlow is unavailable
+- Keeps the project runnable on local systems even without a heavy DL environment
+
+Saved outputs may include:
+- forecasting model files
+- metrics
+- training history graph
+
+---
+
+## 4) Inference in the Flask App
+
+When the user submits the form:
+1. raw values are collected
+2. engineered finance features are generated
+3. trained models are loaded
+4. score / class / forecast predictions are computed
+5. budget, advice, explanation, and investment logic are applied
+6. result is displayed in the dashboard
+7. history is stored in SQLite
+8. report can be exported to PDF
+
+---
+
+# Installation & Run
+
+## 1. Clone the repository
+```bash
+git clone https://github.com/your-username/AI-Finance-Assistant.git
+cd AI-Finance-Assistant
+```
+
+## 2. Create a virtual environment (recommended)
+
+### Windows
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### macOS / Linux
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 4. Generate the dataset
+```bash
+python generate_dataset.py
+```
+
+---
+
+## 5. Train the machine learning models
+```bash
+python train_ml_model.py
+```
+
+---
+
+## 6. Train the forecasting / deep learning model
+```bash
+python train_dl_model.py
+```
+
+---
+
+## 7. Run the Flask app
+```bash
+python app.py
+```
+
+---
+
+## 8. Open in browser
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+# Screenshots
+
+> Add screenshots of your project here after pushing to GitHub.
+
+Suggested screenshots to include:
+- Home dashboard / input form
+- Prediction result dashboard
+- Explainability section
+- Budget recommendation cards
+- What-if simulation section
+- PDF report output
+- User history table
+
+---
+
+# Future Scope
+
+This project can be extended further in multiple ways:
+
+- integrate real bank statement / CSV upload support
+- support multiple user accounts and authentication
+- connect to live stock / mutual fund / SIP APIs
+- add more advanced time-series forecasting models
+- integrate NLP-based financial chatbot support
+- add anomaly detection for suspicious spending
+- add monthly reminder / alert system
+- deploy as a cloud-hosted finance assistant web app
+- build a mobile-friendly or React-based frontend version
+- improve dataset realism with real-world anonymized financial data
+
+---
+
+# Author
+
+**Sai Deva Harsha**  
+AI / ML / Full-Stack Learner  
+GitHub: **saidevaharsha07-art**
+
+---
+
+# Disclaimer
+
+This project is created for **educational, academic, and portfolio purposes**.  
+It is **not certified financial, tax, or investment advice**.
