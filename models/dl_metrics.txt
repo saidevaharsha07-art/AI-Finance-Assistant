@@ -1,0 +1,5 @@
+Savings forecast model
+Engine: Scikit-learn MLP fallback
+MAE: 980.277
+RMSE: 1518.739
+R2: 0.995

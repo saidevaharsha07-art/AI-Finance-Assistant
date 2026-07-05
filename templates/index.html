@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal Finance Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Personal budget dashboard</p>
+      <h1>Finance Planning Assistant</h1>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <h2>Financial Details</h2>
+      <form action="/predict" method="post" class="finance-form" id="financeForm">
+        <div class="grid two">
+          <label>Annual income
+            <input type="number" name="annual_income" value="{{ defaults.annual_income }}" min="0" step="100">
+          </label>
+          <label>Monthly income
+            <input type="number" name="monthly_income" value="{{ defaults.monthly_income }}" min="0" step="100"
+              required>
+          </label>
+        </div>
+
+        <div class="grid three">
+          <label>EMI / loans
+            <input type="number" name="emi_loans" value="{{ defaults.emi_loans }}" min="0" step="100">
+          </label>
+          <label>Rent / house
+            <input type="number" name="rent_house" value="{{ defaults.rent_house }}" min="0" step="100">
+          </label>
+          <label>Food
+            <input type="number" name="food" value="{{ defaults.food }}" min="0" step="100">
+          </label>
+          <label>Shopping
+            <input type="number" name="shopping" value="{{ defaults.shopping }}" min="0" step="100">
+          </label>
+          <label>Education / kids fees
+            <input type="number" name="education" value="{{ defaults.education }}" min="0" step="100">
+          </label>
+          <label>Medical
+            <input type="number" name="medical" value="{{ defaults.medical }}" min="0" step="100">
+          </label>
+          <label>Transportation
+            <input type="number" name="transport" value="{{ defaults.transport }}" min="0" step="100">
+          </label>
+          <label>Tax / PF deductions
+            <input type="number" name="tax_pf_deductions" value="{{ defaults.tax_pf_deductions }}" min="0" step="100">
+          </label>
+          <label>Other expenses
+            <input type="number" name="other_expenses" value="{{ defaults.other_expenses }}" min="0" step="100">
+          </label>
+        </div>
+
+        <div class="grid three">
+          <label>Savings goal
+            <input type="number" name="savings_goal" value="{{ defaults.savings_goal }}" min="0" step="100">
+          </label>
+          <label>Dependents
+            <input type="number" name="dependents" value="{{ defaults.dependents }}" min="0" max="8">
+          </label>
+          <label>City tier
+            <select name="city_tier">
+              {% for option in ["Tier 1", "Tier 2", "Tier 3"] %}
+              <option value="{{ option }}" {% if defaults.city_tier==option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Housing type
+            <select name="housing_type">
+              {% for option in ["Rented", "Owned", "Family Home"] %}
+              <option value="{{ option }}" {% if defaults.housing_type==option %}selected{% endif %}>{{ option }}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Investment preference
+            <select name="investment_preference">
+              {% for option in ["Debt", "Balanced", "Equity"] %}
+              <option value="{{ option }}" {% if defaults.investment_preference==option %}selected{% endif %}>{{ option
+                }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Risk level
+            <select name="risk_level">
+              {% for option in ["Low", "Medium", "High"] %}
+              <option value="{{ option }}" {% if defaults.risk_level==option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+
+        <button type="submit" class="primary-button">Create Budget Plan</button>
+      </form>
+
+      <div class="simulator">
+        <h3>What-If Analysis</h3>
+        <div class="grid two">
+          <label>Income change
+            <input type="number" id="simIncome" value="0" step="1000">
+          </label>
+          <label>EMI change
+            <input type="number" id="simEmi" value="0" step="1000">
+          </label>
+          <label>Shopping change
+            <input type="number" id="simShopping" value="0" step="1000">
+          </label>
+          <label>Savings goal change
+            <input type="number" id="simGoal" value="0" step="1000">
+          </label>
+        </div>
+        <button type="button" class="secondary-button" id="runSimulation">Run What-If Simulation</button>
+        <div class="simulation-result" id="simulationResult"></div>
+      </div>
+    </section>
+
+    <section class="panel results-panel">
+      {% if result %}
+      <div class="result-actions">
+        <div>
+          <p class="eyebrow dark">Your finance summary</p>
+          <h2>Personalized Finance Plan</h2>
+        </div>
+        {% if result.record_id %}
+        <a class="secondary-button link-button"
+          href="{{ url_for('download_report', record_id=result.record_id) }}">Download Financial Report</a>
+        {% endif %}
+      </div>
+
+      <div class="summary-grid v2">
+        <div class="metric"><span>Health score</span><strong>{{ result.health_score }}/100</strong></div>
+        <div class="metric"><span>Health category</span><strong>{{ result.health_category }}</strong></div>
+        <div class="metric"><span>Spender class</span><strong class="class-{{ result.spender_class | lower }}">{{
+            result.spender_class }}</strong></div>
+        <div class="metric"><span>Prediction confidence</span><strong>{{ result.prediction_confidence or "N/A" }}{% if
+            result.prediction_confidence %}%{% endif %}</strong></div>
+        <div class="metric"><span>Overspending</span><strong>{{ "Yes" if result.overspending else "No" }}</strong></div>
+        <div class="metric"><span>Estimated savings</span><strong>Rs. {{ "%.0f"|format(result.actual_savings)
+            }}</strong></div>
+        <div class="metric"><span>6-month savings forecast</span><strong>Rs. {{ "%.0f"|format(result.forecast.month_6)
+            }}</strong></div>
+        <div class="metric"><span>12-month savings forecast</span><strong>Rs. {{ "%.0f"|format(result.forecast.month_12)
+            }}</strong></div>
+      </div>
+
+      {% if comparison %}
+      <div class="comparison-strip">
+        <span>Score change: <strong>{{ "%+.2f"|format(comparison.score_change) }}</strong></span>
+        <span>Savings change: <strong>Rs. {{ "%+.0f"|format(comparison.savings_change) }}</strong></span>
+        <span>Class change: <strong>{{ comparison.class_change }}</strong></span>
+      </div>
+      {% endif %}
+
+      <div class="chart-grid">
+        <div class="chart-box">
+          <h3>Income vs expenses</h3>
+          <canvas id="incomeChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Recommended allocation</h3>
+          <canvas id="budgetChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Risk level</h3>
+          <canvas id="riskChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Future savings forecast</h3>
+          <canvas id="forecastChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Predicted expense trend</h3>
+          <canvas id="expenseTrendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="forecast-section">
+        <h3>Forecast Summary</h3>
+        <div class="allocation-list forecast-list">
+          <div><span>After 1 month</span><strong>Rs. {{ "%.0f"|format(result.forecast.month_1)
+              }}</strong><small>Predicted next-month savings</small></div>
+          <div><span>After 6 months</span><strong>Rs. {{ "%.0f"|format(result.forecast.month_6)
+              }}</strong><small>Cumulative savings forecast</small></div>
+          <div><span>After 12 months</span><strong>Rs. {{ "%.0f"|format(result.forecast.month_12)
+              }}</strong><small>Cumulative savings forecast</small></div>
+          <div><span>Future risk trend</span><strong>{{ result.forecast.risk_trend[-1] }}</strong><small>Projected
+              month-12 category</small></div>
+        </div>
+      </div>
+
+      <div class="allocation">
+        <h3>Monthly Budget Recommendation</h3>
+        <div class="allocation-list">
+          {% for name, amount in result.recommended_amounts.items() %}
+          <div>
+            <span>{{ name.replace("_", " ").title() }}</span>
+            <strong>Rs. {{ "%.0f"|format(amount) }}</strong>
+            <small>{{ result.recommended_percentages[name] }}%</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="insight-grid">
+        <div class="advice">
+          <h3>Why this score?</h3>
+          {% for item in result.explanations %}
+          <p><strong>{{ "%+.1f"|format(item.impact) }}</strong> {{ item.name }}: {{ item.detail }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="advice">
+          <h3>Personalized Advice</h3>
+          {% for item in result.advice %}
+          <p>{{ item }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="investment">
+        <h3>Suggested Investment Plan</h3>
+        <div class="investment-list">
+          {% for item in result.investment_plan %}
+          <div>
+            <span>{{ item.name }}</span>
+            <strong>Rs. {{ "%.0f"|format(item.amount) }}</strong>
+            <small>{{ item.percentage }}% of investable surplus</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <script id="chart-data" type="application/json">{{ result.charts | tojson }}</script>
+      {% else %}
+      <div class="empty-state">
+        <h2>Your personalized plan appears here</h2>
+        <p>Enter your financial details to see your score, risk level, budget plan, forecast, and investment
+          suggestions.</p>
+      </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <section class="panel history-panel">
+    <h2>User History</h2>
+    {% if records %}
+    <div class="history-table">
+      <div class="history-row history-head">
+        <span>Date</span>
+        <span>Income</span>
+        <span>Expenses</span>
+        <span>Score</span>
+        <span>Class</span>
+        <span>Change</span>
+      </div>
+      {% for row in records %}
+      <div class="history-row">
+        <span>{{ row.created_at.replace("T", " ") }}</span>
+        <span>Rs. {{ "%.0f"|format(row.input.monthly_income) }}</span>
+        <span>Rs. {{ "%.0f"|format(row.result.actual_expenses) }}</span>
+        <span>{{ row.result.health_score }}</span>
+        <span>{{ row.result.spender_class }}</span>
+        <span>
+          {% if row.comparison %}
+          {{ "%+.1f"|format(row.comparison.score_change) }} score, Rs. {{ "%+.0f"|format(row.comparison.savings_change)
+          }}
+          {% else %}
+          First entry
+          {% endif %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">No previous entries yet.</p>
+    {% endif %}
+  </section>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>
