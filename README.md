@@ -1,6 +1,6 @@
-# AI-Powered Finance Assistant V2
+# AI-Powered Finance Assistant
 
-AI-Powered Finance Assistant V2 is a major-project-level intelligent personal finance web application built using **Flask, Machine Learning, Deep Learning, SQLite, Chart.js, and PDF reporting**.  
+AI-Powered Finance Assistant is a major-project-level intelligent personal finance web application built using **Flask, Machine Learning, Deep Learning, SQLite, Chart.js, and PDF reporting**.  
 It helps users analyze their financial condition, classify spending behavior, estimate future savings, generate budget recommendations, simulate financial changes, and download a structured financial report.
 
 The project combines **data-driven financial analysis** with **explainable AI insights** to make personal budgeting and forecasting more interactive, understandable, and practical.
@@ -11,7 +11,7 @@ The project combines **data-driven financial analysis** with **explainable AI in
 
 Managing personal finances can be difficult when users do not clearly understand where their money goes, whether they are overspending, how healthy their financial profile is, or how their current habits will affect future savings.
 
-**AI-Powered Finance Assistant V2** is designed to solve this by acting as a smart finance dashboard that accepts user financial details and then uses **machine learning, forecasting, feature engineering, and rule-based financial logic** to provide:
+**AI-Powered Finance Assistant** is designed to solve this by acting as a smart finance dashboard that accepts user financial details and then uses **machine learning, forecasting, feature engineering, and rule-based financial logic** to provide:
 
 - a **financial health score**
 - a **spender classification**
